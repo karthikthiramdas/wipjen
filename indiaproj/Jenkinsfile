@@ -42,7 +42,7 @@ pipeline {
             }
         }
 
-        stage('Build the Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 echo 'Building Docker Image'
                 dir('indiaproj') {
@@ -51,23 +51,47 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Push Docker Image') {
             steps {
-                echo 'Running Java Application'
-                sh '''
-                docker rm -f myjavaproj-container || true
-                docker run -d --name myjavaproj-container myjavaproj:1.0
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker tag myjavaproj:1.0 karthik/myjavaproj:1.0
+                    docker push karthik/myjavaproj:1.0
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('indiaproj') {
+                    sh '''
+                    echo "Deploying to Kubernetes..."
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f services.yaml
+
+                    echo "Waiting for pod to be ready..."
+                    kubectl wait --for=condition=ready pod -l app=myjavaproj --timeout=120s
+
+                    echo "Kubernetes Application URL:"
+                    minikube service myjavaproj-service --url
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'BUILD AND RUN SUCCESSFUL!'
+            echo 'PIPELINE SUCCESSFUL!'
         }
         failure {
-            echo 'OOPS!!! Failure.'
+            echo 'PIPELINE FAILED!'
         }
     }
 }
