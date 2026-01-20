@@ -10,7 +10,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                echo 'Pulling from Github'
+                echo 'Pulling from GitHub'
                 git branch: 'main',
                     credentialsId: 'mygithubcred',
                     url: 'https://github.com/karthikthiramdas/wipjen.git'
@@ -60,8 +60,8 @@ pipeline {
                 )]) {
                     sh '''
                     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker tag myjavaproj:1.0 karthik/myjavaproj:1.0
-                    docker push karthik/myjavaproj:1.0
+                    docker tag myjavaproj:1.0 karthikthiramdas/myjavaproj:1.0
+                    docker push karthikthiramdas/myjavaproj:1.0
                     '''
                 }
             }
@@ -78,8 +78,10 @@ pipeline {
                     echo "Waiting for pod to be ready..."
                     kubectl wait --for=condition=ready pod -l app=myjavaproj --timeout=120s
 
-                    echo "Kubernetes Application URL:"
+                    echo "=============================="
+                    echo "KUBERNETES APPLICATION URL:"
                     minikube service myjavaproj-service --url
+                    echo "=============================="
                     '''
                 }
             }
