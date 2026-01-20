@@ -12,7 +12,6 @@ pipeline {
             steps {
                 echo 'Pulling from GitHub'
                 git branch: 'main',
-                    credentialsId: 'mygithubcred',
                     url: 'https://github.com/karthikthiramdas/wipjen.git'
             }
         }
@@ -75,9 +74,12 @@ pipeline {
                     kubectl apply -f deployment.yaml
                     kubectl apply -f services.yaml
 
+                    echo "Waiting for deployment rollout..."
+                    kubectl rollout status deployment/indiaproj-deployment
+
                     echo "=============================="
                     echo "KUBERNETES APPLICATION URL:"
-                    minikube service indiaproj-service --url
+                    minikube service indiaproj-service --url || true
                     echo "=============================="
                     '''
                 }

@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: indiaproj-service
 spec:
-  selector:
-    app.kubernetes.io/name: indiaproj
-  ports:
-    - protocol: TCP
-      port: 86
-      targetPort: 8080
   type: NodePort
+  selector:
+    app: indiaproj
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30007
