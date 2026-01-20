@@ -75,12 +75,9 @@ pipeline {
                     kubectl apply -f deployment.yaml
                     kubectl apply -f services.yaml
 
-                    echo "Waiting for pod to be ready..."
-                    kubectl wait --for=condition=ready pod -l app=myjavaproj --timeout=120s
-
                     echo "=============================="
                     echo "KUBERNETES APPLICATION URL:"
-                    minikube service myjavaproj-service --url
+                    minikube service indiaproj-service --url
                     echo "=============================="
                     '''
                 }
