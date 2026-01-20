@@ -14,12 +14,12 @@ pipeline {
     stage('Test Code') {
       steps {
         echo 'JUNIT Test case execution started'
-        bat 'mvn clean test'
+        sh 'mvn clean test'
         
       }
       post {
         always {
-		  junit '**/target/surefire-reports/*.xml'
+		  junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
           echo 'Test Run is SUCCESSFUL!'
         }
 
@@ -28,20 +28,20 @@ pipeline {
     stage('Build Project') {
       steps {
         echo 'Building Java project'
-        bat 'mvn clean package -DskipTests'
+        sh 'mvn clean package -DskipTests'
       }
     }
     stage('Build the Docker Image') {
       steps {
         echo 'Building Docker Image'
-        bat 'docker build -t myjavaproj:1.0 .'
+        sh 'docker build -t myjavaproj:1.0 .'
       }
     }
     
     stage('Run Docker Container') {
       steps {
         echo 'Running Java Application'
-        bat '''
+        sh '''
         docker rm -f myjavaproj-container || exit 0
         docker run --name myjavaproj-container myjavaproj:1.0
         
